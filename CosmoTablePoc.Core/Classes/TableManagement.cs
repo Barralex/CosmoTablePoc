@@ -1,5 +1,4 @@
-﻿using CosmoTablePoc.Core.Models;
-using Microsoft.Azure.Cosmos.Table;
+﻿using Microsoft.Azure.Cosmos.Table;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -7,9 +6,9 @@ using System.Threading.Tasks;
 
 namespace CosmoTablePoc.Core
 {
-    public static class TableManagement<T> where T : class
+    public class TableManagement<T> where T : TableEntity
     {
-        private static CloudStorageAccount CreateStorageAccountFromConnectionString(string storageConnectionString)
+        private CloudStorageAccount CreateStorageAccountFromConnectionString(string storageConnectionString)
         {
             CloudStorageAccount storageAccount;
             try
@@ -33,7 +32,7 @@ namespace CosmoTablePoc.Core
             return storageAccount;
         }
 
-        public static async Task<CloudTable> CreateOrReferenceTableAsync(string tableName)
+        public async Task<CloudTable> CreateOrReferenceTableAsync(string tableName)
         {
             string storageConnectionString = AppSettings.LoadAppSettings().StorageConnectionString;
 
@@ -54,7 +53,7 @@ namespace CosmoTablePoc.Core
             return table;
         }
 
-        public static async Task BulkInsertEntityAsync(CloudTable table, List<MetadataEntity> entities)
+        public async Task BulkInsertEntityAsync(CloudTable table, List<T> entities)
         {
             if (entities == null) throw new ArgumentNullException("Entities");
 
@@ -83,7 +82,7 @@ namespace CosmoTablePoc.Core
 
         }
 
-        private static async Task<double> InsertEntityAsync(CloudTable table, MetadataEntity entity)
+        private async Task<double> InsertEntityAsync(CloudTable table, T entity)
         {
             double requestCharge = 0;
 

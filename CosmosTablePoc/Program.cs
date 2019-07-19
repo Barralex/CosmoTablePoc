@@ -20,9 +20,10 @@ namespace CosmosTablePoc
             Console.Write("Azure Cosmos DB Table - Enter bulk size: ");
 
             int bulkSize = int.Parse(Console.ReadLine());
+            var tableManagment = new TableManagement<MetadataEntity>();
 
-            CloudTable table = await TableManagement<MetadataEntity>.CreateOrReferenceTableAsync(TableConstants.TableName);
-            await TableManagement<MetadataEntity>.BulkInsertEntityAsync(table, FakeDataGenerator.GenerateData(bulkSize));
+            CloudTable table = await tableManagment.CreateOrReferenceTableAsync(TableConstants.TableName);
+            await tableManagment.BulkInsertEntityAsync(table, FakeDataGenerator.GenerateData(bulkSize));
 
         }
 
