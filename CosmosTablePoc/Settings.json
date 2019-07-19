@@ -1,0 +1,3 @@
+{
+  "StorageConnectionString": "DefaultEndpointsProtocol=https;AccountName=marketplace-poc;AccountKey=LbVaGFjeGyPdOH2nNI8SRu6zyLyRaSO5OA1tHPC1MKtyQSFh4rS6BaqgglaXu9S6q8CEaXcMa26N2j7ywBV8pQ==;TableEndpoint=https://marketplace-poc.table.cosmos.azure.com:443/;"
+}
