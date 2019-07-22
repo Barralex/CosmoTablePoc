@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace CosmoTablePoc.Core
@@ -63,10 +64,22 @@ namespace CosmoTablePoc.Core
 
                 Stopwatch stopwatch = Stopwatch.StartNew();
 
-                foreach (var entity in entities)
+                Console.Write("Inserting Fake Data into Cosmo DB Table API... ");
+
+                using (var progress = new ProgressBar())
                 {
-                    totalRequestCharge += await InsertEntityAsync(table, entity);
+                    int idx = 0;
+                    foreach (var entity in entities)
+                    {
+                        totalRequestCharge += await InsertEntityAsync(table, entity);
+                        progress.Report((double)idx / entities.Count);
+                        Thread.Sleep(20);
+                        idx++;
+                    }
+
                 }
+
+                Console.WriteLine("Done.");
 
                 stopwatch.Stop();
 

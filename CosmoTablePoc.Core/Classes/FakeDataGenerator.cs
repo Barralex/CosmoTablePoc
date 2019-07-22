@@ -2,6 +2,7 @@
 using CosmoTablePoc.Core.Models;
 using System;
 using System.Collections.Generic;
+using System.Threading;
 
 namespace CosmoTablePoc.Core.Classes
 {
@@ -10,16 +11,21 @@ namespace CosmoTablePoc.Core.Classes
 
         public static List<MetadataEntity> GenerateData(int amount)
         {
-            Console.WriteLine("Genereting Fake Data");
+            Console.Write("Genereting Fake Data... ");
 
             var metadataList = new List<MetadataEntity>();
 
-            for (int i = 0; i < amount; i++)
+            using (var progress = new ProgressBar())
             {
-                metadataList.Add(FakeRow());
+                for (int i = 0; i < amount; i++)
+                {
+                    metadataList.Add(FakeRow());
+                    progress.Report((double)i / amount);
+                    Thread.Sleep(20);
+                }
             }
 
-            Console.WriteLine("Fake Data generated");
+            Console.WriteLine("Done.");
 
             return metadataList;
         }
