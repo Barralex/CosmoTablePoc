@@ -1,7 +1,9 @@
 ﻿using Microsoft.Azure.Cosmos.Table;
+using ShellProgressBar;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -9,6 +11,9 @@ namespace CosmoTablePoc.Core
 {
     public class TableManagement<T> where T : TableEntity
     {
+
+        private double RequestUnitsConsumed { get; set; }
+
         private CloudStorageAccount CreateStorageAccountFromConnectionString(string storageConnectionString)
         {
             CloudStorageAccount storageAccount;
@@ -51,6 +56,8 @@ namespace CosmoTablePoc.Core
                 Console.WriteLine("Table {0} already exists", tableName);
             }
 
+            Console.WriteLine("");
+
             return table;
         }
 
@@ -60,31 +67,35 @@ namespace CosmoTablePoc.Core
 
             try
             {
-                double totalRequestCharge = 0;
 
                 Stopwatch stopwatch = Stopwatch.StartNew();
 
-                Console.Write("Inserting Fake Data into Cosmo DB Table API... ");
-
-                using (var progress = new ProgressBar())
+                var options = new ProgressBarOptions
                 {
-                    int idx = 0;
-                    foreach (var entity in entities)
-                    {
-                        totalRequestCharge += await InsertEntityAsync(table, entity);
-                        progress.Report((double)idx / entities.Count);
-                        Thread.Sleep(20);
-                        idx++;
-                    }
+                    ProgressCharacter = '─',
+                    ProgressBarOnBottom = true
+                };
+
+                using (var pbar = new ProgressBar(entities.Count, "Inserting Fake Data into Cosmo DB Table API...", options))
+                {
+
+                    var tasks = entities.Select(entity => InsertEntityAsync(table, entity,
+                        new Progress<double>(operationResult =>
+                        {
+                            pbar.Tick();
+                            RequestUnitsConsumed += operationResult;
+                        })
+                        ));
+
+                    await Task.WhenAll(tasks);
 
                 }
 
-                Console.WriteLine("Done.");
-
                 stopwatch.Stop();
 
-                Console.WriteLine($"The insert operation for {entities.Count} entities consumed {totalRequestCharge} request units");
+                Console.WriteLine($"The insert operation for {entities.Count} entities consumed {RequestUnitsConsumed} request units");
                 Console.WriteLine($"The insert operation for {entities.Count} entities took {stopwatch.Elapsed}");
+
             }
             catch (StorageException e)
             {
@@ -95,7 +106,7 @@ namespace CosmoTablePoc.Core
 
         }
 
-        private async Task<double> InsertEntityAsync(CloudTable table, T entity)
+        private async Task InsertEntityAsync(CloudTable table, T entity, IProgress<double> completionNotification)
         {
             double requestCharge = 0;
 
@@ -106,8 +117,7 @@ namespace CosmoTablePoc.Core
             {
                 requestCharge = result.RequestCharge.Value;
             }
-
-            return requestCharge;
+            completionNotification.Report(requestCharge);
         }
 
     }

@@ -1,8 +1,9 @@
 ﻿using Bogus;
 using CosmoTablePoc.Core.Models;
+using ShellProgressBar;
 using System;
 using System.Collections.Generic;
-using System.Threading;
+using System.Threading.Tasks;
 
 namespace CosmoTablePoc.Core.Classes
 {
@@ -11,21 +12,29 @@ namespace CosmoTablePoc.Core.Classes
 
         public static List<MetadataEntity> GenerateData(int amount)
         {
-            Console.Write("Genereting Fake Data... ");
-
+    
             var metadataList = new List<MetadataEntity>();
 
-            using (var progress = new ProgressBar())
+            var options = new ProgressBarOptions
             {
-                for (int i = 0; i < amount; i++)
-                {
-                    metadataList.Add(FakeRow());
-                    progress.Report((double)i / amount);
-                    Thread.Sleep(20);
-                }
-            }
+                ProgressCharacter = '─',
+                ProgressBarOnBottom = true
+            };
 
-            Console.WriteLine("Done.");
+            using (var pbar = new ProgressBar(amount, "Genereting Fake Data", options))
+            {
+
+                Parallel.For(0, amount, i =>
+                {
+                    lock (metadataList)
+                    {
+                        metadataList.Add(FakeRow());
+                        pbar.Tick();
+                    }
+
+                });
+
+            }
 
             return metadataList;
         }
