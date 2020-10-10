@@ -17,3 +17,11 @@ RU/s (Request unit per second) took the whole operation.
 
 * [Bogus](https://github.com/bchavez/Bogus) - A simple and sane fake data generator for C#
 * [Microsoft.Azure.Cosmos.Table](https://www.nuget.org/packages/Microsoft.Azure.Cosmos.Table) - Microsoft Azure Cosmos Table Standard Library
+
+## Authors
+
+* **Luis Barral** - *All work* - [Barralex](https://github.com/Barralex)
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details
